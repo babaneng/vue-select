@@ -157,7 +157,7 @@
 .v-select .dropdown-menu {
   display: block;
   position: absolute;
-  top: 100%;
+  top: 120%;
   left: 0;
   z-index: 1000;
   min-width: 160px;
