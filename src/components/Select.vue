@@ -7,7 +7,8 @@
   /* position: relative; */
 }
 .v-select .material-textbox input[type="search"] {
-  width: 100%;
+  flex: 1;
+  width: 100% !important;
   outline: none;
   padding: 8px 0;
   border: none;
@@ -157,7 +158,7 @@
 .v-select .dropdown-menu {
   display: block;
   position: absolute;
-  top: 185%;
+  top: 186%;
   left: 0;
   z-index: 1000;
   min-width: 160px;
@@ -190,16 +191,20 @@
   margin: 4px 2px 0px 2px;
   padding: 0 0.25em;
   transition: opacity .25s;
-  
+
   height: 22px !important;
   position: relative;
   bottom: -14px;
   left: -4px;
-  max-width: 160px;
+  /* max-width: 160px; */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 16px !important;
+  display: flex;
+}
+.v-select .selected-tag  .selected-option-value{
+  flex:1;
 }
 .v-select.single .selected-tag {
   background-color: transparent;
@@ -208,12 +213,16 @@
 .v-select.single.open .selected-tag {
   position: absolute;
   opacity: .4;
+  display: none;
+}
+.v-select.single.open .material-textbox{
+ flex: 1;
 }
 .v-select.single.searching .selected-tag {
   display: none;
 }
 .v-select .selected-tag .close {
-  margin-left: 2px;
+  margin-left: 6px;
   font-size: 1.25em;
   appearance: none;
   padding: 0;
@@ -226,6 +235,7 @@
   text-shadow: 0 1px 0 #fff;
   filter: alpha(opacity=20);
   opacity: .2;
+  flex:1
 }
 .v-select.single.searching:not(.open):not(.loading) input[type="search"] {
   opacity: .2;
@@ -361,6 +371,10 @@
 .fade-leave-to {
   opacity: 0;
 }
+
+.required-star{
+  color: #c33;
+}
 </style>
 
 <template>
@@ -372,7 +386,7 @@
               :option="(typeof option === 'object')?option:{[label]: option}" :deselect="deselect" :multiple="multiple" :disabled="disabled">
           <span class="selected-tag" v-bind:key="option.index" v-tooltip="getOptionLabel(option)">
             <slot name="selected-option" v-bind="(typeof option === 'object')?option:{[label]: option}">
-              {{ getOptionLabel(option) }}
+              <span class="selected-option-value">{{ getOptionLabel(option).length >  OptionLabelMaxLength ? getOptionLabel(option).substring(0,OptionLabelMaxLength)+'...' : getOptionLabel(option)  }}</span>
             </slot>
             <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="close" aria-label="Remove option">
               <span aria-hidden="true">&times;</span>
@@ -397,7 +411,7 @@
                       class="form-control"
                       autocomplete="off"
                       :disabled="disabled"
-                      :placeholder="searchPlaceholder"
+                      :placeholder="(searchPlaceholder ? searchPlaceholder : '') + (searchPlaceholder && required ? '*' : '')"
                       :tabindex="tabindex"
                       :readonly="!searchable"
                       :id="inputId"
@@ -405,10 +419,10 @@
                       :aria-expanded="dropdownOpen"
                       aria-label="Search for option"
               >
-        <span v-if="!searchPlaceholder" class="material-label">{{ placeholder }}{{placeholder && required ? '*' : ''}}</span>
+        <span v-if="!searchPlaceholder" class="material-label">{{ placeholder }} <span class="required-star">{{placeholder && required ? '*' : ''}}</span></span>
       </div>
 
-        
+
 
       </div>
       <div class="vs__actions">
@@ -596,7 +610,10 @@
         type: String,
         default: null
       },
-
+      OptionLabelMaxLength:{
+        type: Number,
+        default: 10
+      },
       /**
        * Callback to generate the label text. If {option}
        * is an object, returns option[this.label] by default.
